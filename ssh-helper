@@ -1,0 +1,44 @@
+#!/bin/bash
+
+SERVER=$1
+
+if [ -z ${SERVER} ]; then
+	echo "Usage:"
+	echo "    ssh-helper <server> [arguments]"
+fi
+
+SERVER=$1
+
+if [ -z ${SERVER} ]; then
+	echo "Usage:"
+	echo "    foo <server>"
+	exit
+fi
+
+contains() {
+
+	TESTSERVER=$1
+
+	for server in ${COMPREPLY[@]}; do
+		if [ ${server} == ${TESTSERVER} ]; then
+			echo 1
+			return
+		fi
+	done
+
+	echo 0
+
+}
+
+. /usr/local/etc/bash_completion # doesn't have to be required
+COMPREPLY=(); _known_hosts_real -a ""
+
+# && echo ${COMPREPLY[*]}
+
+FOUND=$(contains ${SERVER})
+
+if [ "${FOUND}" == "0" ]; then
+	/usr/bin/ssh-copy-id $*
+fi
+
+/usr/bin/ssh $*
